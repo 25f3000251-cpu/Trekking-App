@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}My Trek History{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-0">
+        <i class="bi bi-clock-history text-success me-2"></i>My Trekking History
+    </h1>
+    <p class="text-muted">A complete record of all your trek bookings.</p>
+</div>
+
+{% if bookings %}
+
+<!-- Summary stats -->
+<div class="row g-3 mb-4">
+    {% set booked_count    = bookings | selectattr('booking_status', 'equalto', 'Booked')    | list | length %}
+    {% set cancelled_count = bookings | selectattr('booking_status', 'equalto', 'Cancelled') | list | length %}
+    {% set completed_count = bookings | selectattr('booking_status', 'equalto', 'Completed') | list | length %}
+    <div class="col-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-3 fw-bold text-success">{{ booked_count }}</div>
+            <div class="text-muted small">Active</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-3 fw-bold text-primary">{{ completed_count }}</div>
+            <div class="text-muted small">Completed</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-3 fw-bold text-secondary">{{ cancelled_count }}</div>
+            <div class="text-muted small">Cancelled</div>
+        </div>
+    </div>
+</div>
+
+<!-- Bookings table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Trek</th>
+                    <th>Location</th>
+                    <th>Difficulty</th>
+                    <th>Duration</th>
+                    <th>Trek Dates</th>
+                    <th>Booked On</th>
+                    <th>Trek Status</th>
+                    <th>Booking</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td><strong>{{ b.trek_name }}</strong></td>
+                    <td class="text-muted small">
+                        <i class="bi bi-geo-alt"></i> {{ b.location }}
+                    </td>
+                    <td>
+                        {% if b.difficulty == 'Easy' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">Easy</span>
+                        {% elif b.difficulty == 'Moderate' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Moderate</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Hard</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">{{ b.duration_days }} day(s)</td>
+                    <td class="text-muted small">
+                        {% if b.start_date %}
+                            {{ b.start_date }}<br>→ {{ b.end_date or '?' }}
+                        {% else %}
+                            <em>—</em>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">
+                        {{ b.booking_date[:10] if b.booking_date else '—' }}
+                    </td>
+                    <td>
+                        {% if b.trek_status == 'Open' %}
+                            <span class="badge bg-success">Open</span>
+                        {% elif b.trek_status == 'Completed' %}
+                            <span class="badge bg-primary">Completed</span>
+                        {% elif b.trek_status == 'Closed' %}
+                            <span class="badge bg-secondary">Closed</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">{{ b.trek_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.booking_status == 'Booked' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>Booked
+                            </span>
+                        {% elif b.booking_status == 'Cancelled' %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Cancelled
+                            </span>
+                        {% else %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-trophy me-1"></i>Completed
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-backpack fs-1 d-block mb-3 opacity-50 text-success"></i>
+    <h5>No Bookings Yet</h5>
+    <p>You haven't booked any treks yet.</p>
+    <a href="{{ url_for('user.treks') }}" class="btn btn-success">
+        <i class="bi bi-map me-1"></i>Browse Open Treks
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

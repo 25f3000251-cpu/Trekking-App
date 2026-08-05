@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+
+        <!-- Card wrapper -->
+        <div class="card shadow-sm border-0 tn-auth-card">
+            <div class="card-body p-4 p-md-5">
+
+                <!-- Logo / heading -->
+                <div class="text-center mb-4">
+                    <span class="tn-auth-icon">
+                        <i class="bi bi-mountain-sun"></i>
+                    </span>
+                    <h1 class="h3 fw-bold mt-3 mb-1">Welcome Back</h1>
+                    <p class="text-muted small">Log in to your TrekNest account</p>
+                </div>
+
+                <!-- Login form -->
+                <form method="POST" action="{{ url_for('auth.login') }}">
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-medium">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="username"
+                                   name="username"
+                                   placeholder="Enter your username"
+                                   required
+                                   autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-medium">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password"
+                                   class="form-control"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Enter your password"
+                                   required
+                                   autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-semibold" id="loginSubmitBtn">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <hr class="my-4">
+
+                <!-- Register link -->
+                <p class="text-center text-muted mb-0 small">
+                    Don't have an account?
+                    <a href="{{ url_for('auth.register') }}" class="text-success fw-medium">
+                        Register here
+                    </a>
+                </p>
+
+                <!-- Hint for demo -->
+                <div class="alert alert-light border mt-4 mb-0 small">
+                    <strong><i class="bi bi-info-circle me-1"></i>Demo Admin:</strong>
+                    username <code>admin</code> / password <code>admin123</code>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

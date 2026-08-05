@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   style.css — TrekNest Custom Styles (layered on top of Bootstrap 5)
+   
+   Only Bootstrap is used as the CSS framework (as required by the spec).
+   These are custom additions / overrides for a trekking theme.
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Google Font: Outfit ─────────────────────────────────────────────── */
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* ── Navbar ──────────────────────────────────────────────────────────── */
+.tn-navbar {
+    background: linear-gradient(135deg, #1a3c2b 0%, #2d6a4f 100%);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tn-navbar .navbar-brand {
+    font-size: 1.3rem;
+    letter-spacing: 0.03em;
+}
+
+.tn-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.82) !important;
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.tn-navbar .nav-link:hover,
+.tn-navbar .nav-link.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff !important;
+}
+
+/* ── Auth Cards ──────────────────────────────────────────────────────── */
+.tn-auth-card {
+    border-radius: 16px;
+}
+
+.tn-auth-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #2d6a4f, #52b788);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.8rem;
+}
+
+/* Role-card checkboxes on the register page */
+.tn-role-card {
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    text-align: center;
+}
+
+.tn-role-card:hover {
+    border-color: #2d6a4f !important;
+    background: #f0faf3;
+}
+
+.tn-role-card .form-check-input {
+    display: none; /* hide radio dot — whole card is clickable */
+}
+
+/* ── Stat Cards (Admin Dashboard) ────────────────────────────────────── */
+.tn-stat-card {
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.tn-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.tn-stat-icon {
+    font-size: 2rem;
+}
+
+/* ── Trek Cards ──────────────────────────────────────────────────────── */
+.tn-trek-card {
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+}
+
+.tn-trek-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10) !important;
+}
+
+/* Colored stripe at the top of trek cards */
+.tn-status-stripe {
+    height: 5px;
+    width: 100%;
+}
+
+/* ── Quick link cards (Admin dashboard bottom) ───────────────────────── */
+.tn-quick-link {
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    color: #212529 !important;
+}
+
+.tn-quick-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+    background: #fff !important;
+}
+
+/* ── User welcome banner ─────────────────────────────────────────────── */
+.tn-welcome-banner {
+    background: linear-gradient(135deg, #1a3c2b 0%, #40916c 100%);
+    padding: 2rem;
+}
+
+/* ── Trek meta chips (small pill labels on trek cards) ───────────────── */
+.tn-meta-chip {
+    background: #f1f3f5;
+    border-radius: 20px;
+    padding: 2px 10px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ── User Profile Avatar ─────────────────────────────────────────────── */
+.tn-avatar {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #2d6a4f, #52b788);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+.tn-footer {
+    background: #f1f3f5;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ── General utility ─────────────────────────────────────────────────── */
+
+/* Tables */
+.table th {
+    font-weight: 600;
+    font-size: 0.83rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6c757d;
+}
+
+/* Cards */
+.card {
+    border-radius: 12px;
+}
+
+/* Form controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: #2d6a4f;
+    box-shadow: 0 0 0 0.2rem rgba(45, 106, 79, 0.20);
+}
+
+/* Buttons */
+.btn-success {
+    background-color: #2d6a4f;
+    border-color: #2d6a4f;
+}
+
+.btn-success:hover {
+    background-color: #245a41;
+    border-color: #245a41;
+}
+
+.btn-outline-success {
+    color: #2d6a4f;
+    border-color: #2d6a4f;
+}
+
+.btn-outline-success:hover {
+    background-color: #2d6a4f;
+    border-color: #2d6a4f;
+}
+
+/* Progress bars */
+.progress {
+    border-radius: 20px;
+}
+
+/* Alert flash messages */
+.alert {
+    border-radius: 10px;
+}
+
+/* Breadcrumb styling */
+.breadcrumb-item a {
+    color: #2d6a4f;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}

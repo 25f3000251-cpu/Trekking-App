@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Welcome banner -->
+<div class="tn-welcome-banner rounded-3 p-4 mb-4">
+    <h1 class="h3 fw-bold mb-1 text-white">
+        <i class="bi bi-person-hiking me-2"></i>Welcome, {{ session.full_name }}!
+    </h1>
+    <p class="mb-2 text-white-50">Ready for your next adventure?</p>
+    <a href="{{ url_for('user.treks') }}" class="btn btn-light btn-sm px-3">
+        <i class="bi bi-map me-1"></i>Browse All Treks
+    </a>
+</div>
+
+<!-- ── Active Bookings ─────────────────────────────────────────────── -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0">
+            <i class="bi bi-journal-check text-success me-2"></i>My Active Bookings
+        </h5>
+        <a href="{{ url_for('user.history') }}" class="btn btn-sm btn-outline-secondary">
+            Full History
+        </a>
+    </div>
+
+    {% if my_bookings %}
+    <div class="row g-3">
+        {% for b in my_bookings %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="fw-bold mb-0">{{ b.trek_name }}</h6>
+                        <!-- Difficulty badge -->
+                        {% if b.difficulty == 'Easy' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle ms-2">Easy</span>
+                        {% elif b.difficulty == 'Moderate' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-2">Moderate</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-2">Hard</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-geo-alt me-1"></i>{{ b.location }}
+                    </p>
+                    {% if b.start_date %}
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-calendar3 me-1"></i>{{ b.start_date }} → {{ b.end_date or '?' }}
+                    </p>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <!-- Trek status -->
+                        {% if b.trek_status == 'Open' %}
+                            <span class="badge bg-success">Trek: Open</span>
+                        {% elif b.trek_status == 'Completed' %}
+                            <span class="badge bg-primary">Trek: Completed</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Trek: {{ b.trek_status }}</span>
+                        {% endif %}
+                        <!-- Cancel button -->
+                        <form method="POST" action="{{ url_for('user.cancel_booking', booking_id=b.booking_id) }}"
+                              onsubmit="return confirm('Cancel your booking for {{ b.trek_name }}?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    id="cancelBooking{{ b.booking_id }}">
+                                <i class="bi bi-x-circle me-1"></i>Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-light border text-center">
+        <i class="bi bi-journal-x fs-4 d-block mb-1 text-muted"></i>
+        You have no active bookings.
+        <a href="{{ url_for('user.treks') }}" class="alert-link">Browse open treks</a> to book one!
+    </div>
+    {% endif %}
+</div>
+
+<!-- ── Available Treks (quick view) ───────────────────────────────── -->
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-semibold mb-0">
+            <i class="bi bi-map text-primary me-2"></i>Open Treks Near You
+        </h5>
+        <a href="{{ url_for('user.treks') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+
+    {% if open_treks %}
+    <div class="row g-3">
+        {% for trek in open_treks %}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100 tn-trek-card">
+                <div class="tn-status-stripe bg-success"></div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="fw-bold mb-0">{{ trek.name }}</h6>
+                        {% if trek.difficulty == 'Easy' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle ms-1 small">Easy</span>
+                        {% elif trek.difficulty == 'Moderate' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-1 small">Moderate</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1 small">Hard</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ trek.location }}
+                    </p>
+                    <div class="d-flex gap-3 small text-muted mb-3">
+                        <span><i class="bi bi-people me-1"></i>{{ trek.available_slots }} slots left</span>
+                        <span><i class="bi bi-calendar3 me-1"></i>{{ trek.duration_days }}d</span>
+                    </div>
+                    <a href="{{ url_for('user.treks') }}" class="btn btn-sm btn-outline-success w-100">
+                        <i class="bi bi-arrow-right-circle me-1"></i>View &amp; Book
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-light border text-center text-muted">
+        <i class="bi bi-calendar-x me-2"></i>No open treks available right now. Check back later!
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
