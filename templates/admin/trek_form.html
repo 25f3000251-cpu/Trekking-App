@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Trek' if trek else 'Add Trek' }}{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.treks') }}">Treks</a></li>
+        <li class="breadcrumb-item active">{{ 'Edit Trek' if trek else 'Add New Trek' }}</li>
+    </ol>
+</nav>
+
+<!-- Page heading -->
+<div class="d-flex align-items-center mb-4">
+    <h1 class="h3 fw-bold mb-0">
+        <i class="bi bi-{{ 'pencil-square' if trek else 'plus-circle' }} text-success me-2"></i>
+        {{ 'Edit Trek' if trek else 'Add New Trek' }}
+    </h1>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+
+                <form method="POST" action="{{ url_for('admin.edit_trek', trek_id=trek.id) if trek else url_for('admin.add_trek') }}">
+
+                    <div class="row g-3">
+
+                        <!-- Trek Name -->
+                        <div class="col-12">
+                            <label for="name" class="form-label fw-medium">
+                                Trek Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                   value="{{ trek.name if trek else '' }}"
+                                   placeholder="e.g. Valley of Flowers Trek"
+                                   required>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="col-12 col-md-6">
+                            <label for="location" class="form-label fw-medium">
+                                Location <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="location" name="location"
+                                   value="{{ trek.location if trek else '' }}"
+                                   placeholder="e.g. Uttarakhand, India"
+                                   required>
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div class="col-12 col-md-6">
+                            <label for="difficulty" class="form-label fw-medium">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="Easy"     {% if trek and trek.difficulty == 'Easy'     %}selected{% endif %}>Easy</option>
+                                <option value="Moderate" {% if trek and trek.difficulty == 'Moderate' %}selected{% endif %}>Moderate</option>
+                                <option value="Hard"     {% if trek and trek.difficulty == 'Hard'     %}selected{% endif %}>Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- Duration -->
+                        <div class="col-12 col-md-4">
+                            <label for="duration_days" class="form-label fw-medium">Duration (days)</label>
+                            <input type="number" class="form-control" id="duration_days"
+                                   name="duration_days" min="1" max="365"
+                                   value="{{ trek.duration_days if trek else 1 }}"
+                                   required>
+                        </div>
+
+                        <!-- Total Slots -->
+                        <div class="col-12 col-md-4">
+                            <label for="total_slots" class="form-label fw-medium">Total Slots</label>
+                            <input type="number" class="form-control" id="total_slots"
+                                   name="total_slots" min="1" max="1000"
+                                   value="{{ trek.total_slots if trek else 10 }}"
+                                   required>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-12 col-md-4">
+                            <label for="status" class="form-label fw-medium">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Pending"   {% if not trek or trek.status == 'Pending'   %}selected{% endif %}>Pending</option>
+                                <option value="Approved"  {% if trek and trek.status == 'Approved'  %}selected{% endif %}>Approved</option>
+                                <option value="Open"      {% if trek and trek.status == 'Open'      %}selected{% endif %}>Open</option>
+                                <option value="Closed"    {% if trek and trek.status == 'Closed'    %}selected{% endif %}>Closed</option>
+                                <option value="Completed" {% if trek and trek.status == 'Completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+
+                        <!-- Start Date -->
+                        <div class="col-12 col-md-6">
+                            <label for="start_date" class="form-label fw-medium">Start Date</label>
+                            <input type="date" class="form-control" id="start_date"
+                                   name="start_date"
+                                   value="{{ trek.start_date if trek else '' }}">
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="col-12 col-md-6">
+                            <label for="end_date" class="form-label fw-medium">End Date</label>
+                            <input type="date" class="form-control" id="end_date"
+                                   name="end_date"
+                                   value="{{ trek.end_date if trek else '' }}">
+                        </div>
+
+                        <!-- Assigned Staff -->
+                        <div class="col-12">
+                            <label for="assigned_staff_id" class="form-label fw-medium">
+                                Assign Staff
+                                <span class="text-muted fw-normal">(optional)</span>
+                            </label>
+                            <select class="form-select" id="assigned_staff_id" name="assigned_staff_id">
+                                <option value="">— Unassigned —</option>
+                                {% for staff in staff_list %}
+                                <option value="{{ staff.id }}"
+                                    {% if trek and trek.assigned_staff_id == staff.id %}selected{% endif %}>
+                                    {{ staff.full_name }} (ID: {{ staff.id }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if not staff_list %}
+                            <div class="form-text text-warning">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                No approved staff available.
+                                <a href="{{ url_for('admin.staff') }}">Approve staff first.</a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label for="description" class="form-label fw-medium">Description</label>
+                            <textarea class="form-control" id="description" name="description"
+                                      rows="4" placeholder="Describe the trek route, highlights, requirements…">{{ trek.description if trek else '' }}</textarea>
+                        </div>
+
+                    </div><!-- /row -->
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success px-4" id="saveTrekBtn">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {{ 'Save Changes' if trek else 'Create Trek' }}
+                        </button>
+                        <a href="{{ url_for('admin.treks') }}" class="btn btn-outline-secondary px-4">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info sidebar -->
+    <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">
+                    <i class="bi bi-info-circle text-primary me-1"></i>Status Guide
+                </h6>
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-1">Pending</span>
+                        Just created, not yet reviewed
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-info text-dark me-1">Approved</span>
+                        Approved but not open for booking
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-success me-1">Open</span>
+                        Users can book this trek
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-secondary me-1">Closed</span>
+                        Booking period has ended
+                    </li>
+                    <li>
+                        <span class="badge bg-primary me-1">Completed</span>
+                        Trek has been completed
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

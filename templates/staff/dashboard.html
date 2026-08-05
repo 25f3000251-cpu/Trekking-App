@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Heading -->
+<div class="mb-4">
+    <h1 class="h3 fw-bold mb-0">
+        <i class="bi bi-speedometer2 text-success me-2"></i>Staff Dashboard
+    </h1>
+    <p class="text-muted mb-0">Welcome, {{ session.full_name }}! Here are your assigned treks.</p>
+</div>
+
+{% if treks %}
+
+<!-- Summary bar -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-success">{{ treks | length }}</div>
+            <div class="text-muted small">Assigned Trek(s)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-primary">
+                {{ treks | selectattr('status', 'equalto', 'Open') | list | length }}
+            </div>
+            <div class="text-muted small">Open Trek(s)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-warning">
+                {{ treks | sum(attribute='booked_count') }}
+            </div>
+            <div class="text-muted small">Total Participants</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="fs-2 fw-bold text-danger">
+                {{ treks | selectattr('status', 'equalto', 'Completed') | list | length }}
+            </div>
+            <div class="text-muted small">Completed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Trek cards -->
+<h5 class="fw-semibold mb-3">Your Assigned Treks</h5>
+<div class="row g-4">
+    {% for trek in treks %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm tn-trek-card">
+            <!-- Status stripe at top -->
+            <div class="tn-status-stripe bg-{{ 'success' if trek.status == 'Open' else 'secondary' if trek.status == 'Closed' else 'primary' if trek.status == 'Completed' else 'warning' }}"></div>
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold mb-0">{{ trek.name }}</h5>
+                    {% if trek.status == 'Open' %}
+                        <span class="badge bg-success ms-2">Open</span>
+                    {% elif trek.status == 'Closed' %}
+                        <span class="badge bg-secondary ms-2">Closed</span>
+                    {% elif trek.status == 'Completed' %}
+                        <span class="badge bg-primary ms-2">Completed</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark ms-2">{{ trek.status }}</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-geo-alt me-1"></i>{{ trek.location }}
+                </p>
+
+                <div class="d-flex gap-3 text-muted small mb-3">
+                    <span><i class="bi bi-speedometer me-1"></i>{{ trek.difficulty }}</span>
+                    <span><i class="bi bi-calendar3 me-1"></i>{{ trek.duration_days }} day(s)</span>
+                </div>
+
+                {% if trek.start_date %}
+                <div class="small text-muted mb-3">
+                    <i class="bi bi-calendar-range me-1"></i>
+                    {{ trek.start_date }} → {{ trek.end_date or '?' }}
+                </div>
+                {% endif %}
+
+                <!-- Slot progress bar -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="text-muted">Participants Booked</span>
+                        <strong>{{ trek.booked_count }} / {{ trek.total_slots }}</strong>
+                    </div>
+                    {% set pct = ((trek.booked_count / trek.total_slots) * 100) | int if trek.total_slots > 0 else 0 %}
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: {{ pct }}%;"></div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('staff.trek_detail', trek_id=trek.id) }}"
+                   class="btn btn-outline-success w-100"
+                   id="manageTrek{{ trek.id }}">
+                    <i class="bi bi-gear me-1"></i>Manage Trek
+                </a>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty state — no treks assigned yet -->
+<div class="text-center py-5 text-muted mt-4">
+    <i class="bi bi-map fs-1 d-block mb-3 opacity-50 text-success"></i>
+    <h4>No Treks Assigned Yet</h4>
+    <p class="mb-0">The admin hasn't assigned any treks to you yet.<br>
+    Check back soon or contact the administrator.</p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}{{ trek.name }} — Staff{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('staff.dashboard') }}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item active">{{ trek.name }}</li>
+    </ol>
+</nav>
+
+<!-- Trek header -->
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="h3 fw-bold mb-1">
+            <i class="bi bi-map-fill text-success me-2"></i>{{ trek.name }}
+        </h1>
+        <p class="text-muted mb-0">
+            <i class="bi bi-geo-alt me-1"></i>{{ trek.location }}
+            &bull;
+            <i class="bi bi-speedometer me-1 ms-1"></i>{{ trek.difficulty }}
+            &bull;
+            <i class="bi bi-calendar3 me-1 ms-1"></i>{{ trek.duration_days }} day(s)
+            {% if trek.start_date %}
+            &bull;
+            <i class="bi bi-calendar-range me-1 ms-1"></i>{{ trek.start_date }} → {{ trek.end_date or '?' }}
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-auto">
+        {% if trek.status == 'Open' %}
+            <span class="badge bg-success fs-6">Open</span>
+        {% elif trek.status == 'Closed' %}
+            <span class="badge bg-secondary fs-6">Closed</span>
+        {% elif trek.status == 'Completed' %}
+            <span class="badge bg-primary fs-6">Completed</span>
+        {% else %}
+            <span class="badge bg-warning text-dark fs-6">{{ trek.status }}</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- Left: Management panels -->
+    <div class="col-12 col-lg-4">
+
+        <!-- ── Slot Updater ── -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-semibold mb-0">
+                    <i class="bi bi-people-fill text-success me-1"></i>Available Slots
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <span class="display-5 fw-bold text-success">{{ trek.available_slots }}</span>
+                    <span class="text-muted fs-5"> / {{ trek.total_slots }}</span>
+                    <div class="small text-muted mt-1">slots remaining</div>
+                </div>
+                <!-- Progress bar -->
+                {% set booked = trek.total_slots - trek.available_slots %}
+                {% set pct = ((booked / trek.total_slots) * 100) | int if trek.total_slots > 0 else 0 %}
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-success" style="width: {{ pct }}%;"></div>
+                </div>
+                <!-- Update form -->
+                <form method="POST" action="{{ url_for('staff.trek_detail', trek_id=trek.id) }}">
+                    <input type="hidden" name="action" value="update_slots">
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="available_slots"
+                               value="{{ trek.available_slots }}" min="0" max="{{ trek.total_slots }}"
+                               id="slotsInput">
+                        <button type="submit" class="btn btn-success" id="updateSlotsBtn">
+                            <i class="bi bi-check-lg"></i> Update
+                        </button>
+                    </div>
+                    <div class="form-text">Max: {{ trek.total_slots }}</div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ── Status Updater ── -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-semibold mb-0">
+                    <i class="bi bi-toggle-on text-primary me-1"></i>Trek Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">
+                    Change the trek status. Only <strong>Open</strong> treks can be booked by users.
+                </p>
+                <form method="POST" action="{{ url_for('staff.trek_detail', trek_id=trek.id) }}">
+                    <input type="hidden" name="action" value="update_status">
+                    <div class="mb-3">
+                        <select class="form-select" name="status" id="statusSelect">
+                            <option value="Open"      {% if trek.status == 'Open'      %}selected{% endif %}>Open — Users can book</option>
+                            <option value="Closed"    {% if trek.status == 'Closed'    %}selected{% endif %}>Closed — Booking stopped</option>
+                            <option value="Completed" {% if trek.status == 'Completed' %}selected{% endif %}>Completed — Trek finished</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="updateStatusBtn">
+                        <i class="bi bi-arrow-repeat me-1"></i> Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div><!-- /col left -->
+
+    <!-- Right: Participants Table -->
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                <h6 class="fw-semibold mb-0">
+                    <i class="bi bi-person-lines-fill text-warning me-1"></i>
+                    Registered Participants
+                </h6>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                    {{ participants | length }} registered
+                </span>
+            </div>
+            <div class="card-body p-0">
+                {% if participants %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Booked On</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in participants %}
+                            <tr>
+                                <td class="text-muted small">{{ loop.index }}</td>
+                                <td><strong>{{ p.full_name or p.username }}</strong></td>
+                                <td class="text-muted small">@{{ p.username }}</td>
+                                <td class="text-muted small">{{ p.email }}</td>
+                                <td class="text-muted small">{{ p.phone or '—' }}</td>
+                                <td class="text-muted small">
+                                    {{ p.booking_date[:10] if p.booking_date else '—' }}
+                                </td>
+                                <td>
+                                    {% if p.booking_status == 'Booked' %}
+                                        <span class="badge bg-success">Booked</span>
+                                    {% elif p.booking_status == 'Cancelled' %}
+                                        <span class="badge bg-secondary">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">Completed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-person-slash fs-2 d-block mb-2 opacity-50"></i>
+                    <p class="mb-0">No participants have booked this trek yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Trek description -->
+        {% if trek.description %}
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-2">
+                    <i class="bi bi-file-text text-muted me-1"></i>Trek Description
+                </h6>
+                <p class="text-muted small mb-0">{{ trek.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+    </div><!-- /col right -->
+</div>
+
+{% endblock %}

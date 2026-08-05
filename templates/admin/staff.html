@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Manage Staff{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold mb-0">
+        <i class="bi bi-person-badge text-warning me-2"></i>Trek Staff
+    </h1>
+</div>
+
+<!-- Search -->
+<form method="GET" action="{{ url_for('admin.staff') }}" class="mb-4">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" name="search"
+               value="{{ search }}"
+               placeholder="Search by name, username, or ID…">
+        <button type="submit" class="btn btn-outline-warning" id="searchStaffBtn">Search</button>
+        {% if search %}
+        <a href="{{ url_for('admin.staff') }}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </div>
+</form>
+
+<p class="text-muted small mb-3">
+    Showing <strong>{{ staff_list | length }}</strong> staff member(s)
+    {% if search %}matching "<em>{{ search }}</em>"{% endif %}
+</p>
+
+{% if staff_list %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Treks Assigned</th>
+                    <th>Joined</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in staff_list %}
+                <tr>
+                    <td class="text-muted small">#{{ member.id }}</td>
+                    <td><strong>{{ member.full_name or member.username }}</strong></td>
+                    <td class="text-muted small">@{{ member.username }}</td>
+                    <td class="text-muted small">{{ member.email }}</td>
+                    <td class="text-muted small">{{ member.phone or '—' }}</td>
+                    <td>
+                        <span class="badge bg-light text-dark border">
+                            {{ member.trek_count }} trek(s)
+                        </span>
+                    </td>
+                    <td class="text-muted small">
+                        {{ member.created_at[:10] if member.created_at else '—' }}
+                    </td>
+                    <td>
+                        {% if member.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                        {% elif member.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% else %}
+                            <span class="badge bg-danger">Blacklisted</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <!-- Approve button (only for pending) -->
+                        {% if member.status == 'pending' %}
+                        <form method="POST" action="{{ url_for('admin.approve_staff', staff_id=member.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success me-1"
+                                    id="approveStaff{{ member.id }}"
+                                    title="Approve">
+                                <i class="bi bi-check-lg"></i> Approve
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <!-- Blacklist button (only for active) -->
+                        {% if member.status == 'active' %}
+                        <form method="POST" action="{{ url_for('admin.blacklist_staff', staff_id=member.id) }}"
+                              style="display:inline;"
+                              onsubmit="return confirm('Blacklist {{ member.full_name }}?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    id="blacklistStaff{{ member.id }}"
+                                    title="Blacklist">
+                                <i class="bi bi-slash-circle"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        <!-- Re-activate button (only for blacklisted) -->
+                        {% if member.status == 'blacklisted' %}
+                        <form method="POST" action="{{ url_for('admin.activate_staff', staff_id=member.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-success"
+                                    id="activateStaff{{ member.id }}"
+                                    title="Re-activate">
+                                <i class="bi bi-arrow-clockwise"></i> Activate
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-person-badge fs-1 d-block mb-3 opacity-50"></i>
+    <h5>No staff members found</h5>
+    {% if search %}
+        <p>No results for "<strong>{{ search }}</strong>".</p>
+    {% else %}
+        <p>No staff have registered yet.</p>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

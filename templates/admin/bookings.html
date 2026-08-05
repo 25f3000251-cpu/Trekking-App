@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}All Bookings{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold mb-0">
+        <i class="bi bi-journal-check text-danger me-2"></i>All Bookings
+    </h1>
+    <span class="badge bg-secondary fs-6">{{ bookings | length }} total</span>
+</div>
+
+{% if bookings %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>User</th>
+                    <th>Trek</th>
+                    <th>Location</th>
+                    <th>Difficulty</th>
+                    <th>Trek Status</th>
+                    <th>Booking Date</th>
+                    <th>Booking Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr>
+                    <td class="text-muted small">#{{ b.id }}</td>
+                    <td>
+                        <strong>{{ b.full_name or b.username }}</strong><br>
+                        <small class="text-muted">@{{ b.username }}</small>
+                    </td>
+                    <td><strong>{{ b.trek_name }}</strong></td>
+                    <td class="text-muted small">
+                        <i class="bi bi-geo-alt"></i> {{ b.location }}
+                    </td>
+                    <td>
+                        {% if b.difficulty == 'Easy' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">Easy</span>
+                        {% elif b.difficulty == 'Moderate' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Moderate</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Hard</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if b.trek_status == 'Open' %}
+                            <span class="badge bg-success">Open</span>
+                        {% elif b.trek_status == 'Completed' %}
+                            <span class="badge bg-primary">Completed</span>
+                        {% elif b.trek_status == 'Closed' %}
+                            <span class="badge bg-secondary">Closed</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">{{ b.trek_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">
+                        {{ b.booking_date[:10] if b.booking_date else '—' }}
+                    </td>
+                    <td>
+                        {% if b.booking_status == 'Booked' %}
+                            <span class="badge bg-success">Booked</span>
+                        {% elif b.booking_status == 'Cancelled' %}
+                            <span class="badge bg-secondary">Cancelled</span>
+                        {% else %}
+                            <span class="badge bg-primary">Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-journal-check fs-1 d-block mb-3 opacity-50"></i>
+    <h5>No bookings yet</h5>
+    <p>Bookings will appear here once users start booking treks.</p>
+</div>
+{% endif %}
+
+{% endblock %}

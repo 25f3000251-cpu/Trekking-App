@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Manage Treks{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold mb-0">
+        <i class="bi bi-map text-success me-2"></i>Manage Treks
+    </h1>
+    <a href="{{ url_for('admin.add_trek') }}" class="btn btn-success" id="addTrekTopBtn">
+        <i class="bi bi-plus-circle me-1"></i> Add Trek
+    </a>
+</div>
+
+<!-- Search form -->
+<form method="GET" action="{{ url_for('admin.treks') }}" class="mb-4">
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" name="search"
+               value="{{ search }}"
+               placeholder="Search by trek name, location, or ID…">
+        <button type="submit" class="btn btn-outline-success" id="searchTreksBtn">Search</button>
+        {% if search %}
+        <a href="{{ url_for('admin.treks') }}" class="btn btn-outline-secondary">Clear</a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- Trek count / result label -->
+<p class="text-muted small mb-3">
+    Showing <strong>{{ treks | length }}</strong> trek(s)
+    {% if search %}matching "<em>{{ search }}</em>"{% endif %}
+</p>
+
+<!-- Treks table -->
+{% if treks %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Trek Name</th>
+                    <th>Location</th>
+                    <th>Difficulty</th>
+                    <th>Duration</th>
+                    <th>Slots</th>
+                    <th>Assigned Staff</th>
+                    <th>Status</th>
+                    <th>Dates</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trek in treks %}
+                <tr>
+                    <td class="text-muted small">#{{ trek.id }}</td>
+                    <td>
+                        <strong>{{ trek.name }}</strong>
+                    </td>
+                    <td class="text-muted small">
+                        <i class="bi bi-geo-alt"></i> {{ trek.location }}
+                    </td>
+                    <td>
+                        {% if trek.difficulty == 'Easy' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">Easy</span>
+                        {% elif trek.difficulty == 'Moderate' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Moderate</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Hard</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">{{ trek.duration_days }} day(s)</td>
+                    <td>
+                        <span class="fw-medium">{{ trek.available_slots }}</span>
+                        <span class="text-muted">/{{ trek.total_slots }}</span>
+                    </td>
+                    <td class="text-muted small">
+                        {{ trek.staff_name or '<em>Unassigned</em>' | safe }}
+                    </td>
+                    <td>
+                        {% if trek.status == 'Open' %}
+                            <span class="badge bg-success">Open</span>
+                        {% elif trek.status == 'Closed' %}
+                            <span class="badge bg-secondary">Closed</span>
+                        {% elif trek.status == 'Completed' %}
+                            <span class="badge bg-primary">Completed</span>
+                        {% elif trek.status == 'Approved' %}
+                            <span class="badge bg-info text-dark">Approved</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">
+                        {% if trek.start_date %}
+                            {{ trek.start_date }}<br>→ {{ trek.end_date or '?' }}
+                        {% else %}
+                            <em>Not set</em>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ url_for('admin.edit_trek', trek_id=trek.id) }}"
+                           class="btn btn-sm btn-outline-primary me-1"
+                           id="editTrek{{ trek.id }}">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <!-- Delete button triggers a form POST -->
+                        <form method="POST" action="{{ url_for('admin.delete_trek', trek_id=trek.id) }}"
+                              style="display:inline;"
+                              onsubmit="return confirm('Delete trek \'{{ trek.name }}\'? This will also remove all its bookings.')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    id="deleteTrek{{ trek.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<!-- Empty state -->
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-map fs-1 d-block mb-3 text-success opacity-50"></i>
+    <h5>No treks found</h5>
+    {% if search %}
+        <p>No results for "<strong>{{ search }}</strong>". Try a different search term.</p>
+    {% else %}
+        <p>Get started by adding your first trek!</p>
+        <a href="{{ url_for('admin.add_trek') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i> Add First Trek
+        </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
